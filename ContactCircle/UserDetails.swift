@@ -69,7 +69,7 @@ struct UserDetails: View {
                     HStack {
                         ForEach(user.friends) { friend in
                             VStack(alignment: .leading) {
-                                Image(systemName: user.isActive ? "person.fill.checkmark" : "person.fill.xmark")
+                                Image(systemName: "person.crop.circle")
                                     .renderingMode(.original)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
