@@ -8,47 +8,38 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var usersData = [UserData]()
-    
+    @ObservedObject var dataManager = DataManager()
+
     var body: some View {
         NavigationView {
-            List(usersData, id: \.id) { user in
-                VStack(alignment: .leading) {
-                    Text(user.name)
-                        .font(.headline)
+            List(dataManager.usersData, id: \.id) { user in
+                NavigationLink {
+                    UserDetails(user: user)
+                } label: {
+                    HStack {
+                        Image(systemName: user.isActive ? "person.fill.checkmark" : "person.fill.xmark")
+                            .renderingMode(.original)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(.trailing)
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.mint)
+                        VStack(alignment: .leading) {
+                            Text(user.name)
+                                .font(.headline)
+                            Text(user.company)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
-            .task {
-                await loadData()
-            }
             .navigationTitle("Contact Circle")
-        }
-    }
-    
-    func loadData() async {
-        guard usersData.isEmpty else { return }
-        
-        guard let url = URL(string: "https://www.hackingwithswift.com/samples/friendface.json") else {
-            print("Invalid URL")
-            return
-        }
-        
-        // For Date to be decoded use this decoding strategy
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            
-            if let decodedResponse = try? decoder.decode([UserData].self, from: data) {
-                
-                usersData = decodedResponse
+            .task {
+                await dataManager.loadData()
             }
             
-        } catch {
-            print("Invalid Data")
         }
-        
     }
 }
 
